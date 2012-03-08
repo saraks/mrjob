@@ -398,6 +398,9 @@ class HadoopJobRunner(MRJobRunner):
             else:
                 streaming_args.extend(['-jobconf', 'mapred.reduce.tasks=0'])
 
+            if self._job_name:
+                streaming_args.extend(['-jobconf', 'mapred.job.name=%s' % self._job_name])
+
             log.debug('> %s' % cmd_line(streaming_args))
             step_proc = Popen(streaming_args, stdout=PIPE, stderr=PIPE)
 
