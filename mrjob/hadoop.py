@@ -194,6 +194,7 @@ class HadoopJobRunner(MRJobRunner):
             'hadoop_bin',
             'hadoop_home',
             'hdfs_scratch_dir',
+            'hdfs_namenode',
         ]
 
     @classmethod
@@ -343,6 +344,8 @@ class HadoopJobRunner(MRJobRunner):
             streaming_args = (self._opts['hadoop_bin'] +
                               ['jar', self._opts['hadoop_streaming_jar']])
 
+            if self._opts['hdfs_namenode']:
+                streaming_args.extend(['-fs', self._opts['hdfs_namenode']])
             # -files/-archives (generic options, new-style)
             if compat.supports_new_distributed_cache_options(version):
                 # set up uploading from HDFS to the working dir
@@ -560,6 +563,10 @@ class HadoopJobRunner(MRJobRunner):
             than logging it. If this is False, we return the returncode
             instead.
         """
+        if args[0] == 'fs':
+            if self._opts['hdfs_namenode']:
+                args = [args[0]] + ['-fs', self._opts['hdfs_namenode']] + args[1:]
+
         args = self._opts['hadoop_bin'] + args
 
         log.debug('> %s' % cmd_line(args))
@@ -717,7 +724,10 @@ class HadoopJobRunner(MRJobRunner):
     def _cat_file(self, filename):
         if is_uri(filename):
             # stream from HDFS
-            cat_args = self._opts['hadoop_bin'] + ['fs', '-cat', filename]
+            cat_args = self._opts['hadoop_bin'] + ['fs']
+            if self._opts['hdfs_namenode']:
+                cat_args += ['-fs', self._opts['hdfs_namenode']]
+            cat_args += ['-cat', filename]
             log.debug('> %s' % cmd_line(cat_args))
 
             cat_proc = Popen(cat_args, stdout=PIPE, stderr=PIPE)

@@ -1160,6 +1160,10 @@ class MRJob(object):
             help='hadoop binary. Defaults to $HADOOP_HOME/bin/hadoop')
 
         self.hadoop_opt_group.add_option(
+            '--hdfs-namenode', dest='hdfs_namenode', default=None,
+            help='The hdfs namenode that all the operations must point to')
+
+        self.hadoop_opt_group.add_option(
             '--hdfs-scratch-dir', dest='hdfs_scratch_dir',
             default=None,
             help='Scratch space on HDFS (default is tmp/)')
